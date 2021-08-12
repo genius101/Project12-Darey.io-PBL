@@ -131,4 +131,13 @@ Let see code re-use in action by importing other playbooks.</h3>
 
 ![3 d](https://user-images.githubusercontent.com/10243139/129189485-59b93a07-f2c6-4ed2-9ecb-f7efca96e95e.jpg)
 
+<p>It is time to start adding some logic to the webserver role. Go into tasks directory, and within the main.yml file, start writing configuration tasks to do the following:</p>
+
+- [ ] Install and configure Apache (httpd service)
+
+- [ ] Clone Tooling website from GitHub https://github.com/<your-name>/tooling.git.
+
+- [ ] Ensure the tooling website code is deployed to /var/www/html on each of 2 UAT Web servers.
+
+- [ ] Make sure httpd service is started
 
