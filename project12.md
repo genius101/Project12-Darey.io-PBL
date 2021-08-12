@@ -135,9 +135,93 @@ Let see code re-use in action by importing other playbooks.</h3>
 
 - [ ] Install and configure Apache (httpd service)
 
-- [ ] Clone Tooling website from GitHub https://github.com/<your-name>/tooling.git.
+- [ ] Clone Tooling website from GitHub https://github.com/your-name/tooling.git.
 
 - [ ] Ensure the tooling website code is deployed to /var/www/html on each of 2 UAT Web servers.
 
-- [ ] Make sure httpd service is started
+- [ ] Make sure httpd service is started.
+
+<p>Your main.yml may consist of following tasks:</p>
+
+    ---
+    - name: install apache
+      become: true
+      ansible.builtin.yum:
+        name: "httpd"
+        state: present
+
+    - name: install git
+      become: true
+      ansible.builtin.yum:
+        name: "git"
+        state: present
+
+    - name: clone a repo
+      become: true
+      ansible.builtin.git:
+        repo: https://github.com/genius101/tooling.git
+        dest: /var/www/html
+        force: yes
+
+    - name: copy html content to one level up
+      become: true
+      command: cp -r /var/www/html/html/ /var/www/
+
+    - name: Start service httpd, if not started
+      become: true
+      ansible.builtin.service:
+        name: httpd
+        state: started
+
+    - name: recursively remove /var/www/html/html/ directory
+      become: true
+      ansible.builtin.file:
+        path: /var/www/html/html
+        state: absent
+
+<h2>Step 4 – Reference ‘Webserver’ role</h2>
+
+<p>Within the static-assignments folder, create a new assignment for uat-webservers: uat-webservers.yml.</p>
+
+<p>This is where you will reference the role.</p>
+
+    ---
+    - hosts: uat-webservers
+      roles:
+         - webserver
+
+<p>Remember that the entry point to our ansible configuration is the site.yml file. Therefore, you need to refer your uat-webservers.yml role inside site.yml.</p>
+
+<p>So, we should have this in site.yml</p>
+
+    ---
+    - hosts: all
+    - import_playbook: ../static-assignments/common.yml
+
+    - hosts: uat-webservers
+    - import_playbook: ../static-assignments/uat-webservers.yml
+
+<h2>Step 5 – Commit & Test</h2>
+
+<p>Commit and Merge to Master via VS Code</p>
+
+<p>Now run the playbook against your uat inventory and see what happens:</p>
+
+    sudo ansible-playbook -i /home/ubuntu/ansible-config-artifact/inventory/uat.yml /home/ubuntu/ansible-config-artifact/playbooks/site.yml
+
+![5 b](https://user-images.githubusercontent.com/10243139/129191894-6c67fc51-4b9c-4bfc-bfef-6434502bd9f1.jpg)
+
+<p>You should be able to see both of your UAT Web servers configured and you can try to reach them from your browser:</p>
+
+![5 c2](https://user-images.githubusercontent.com/10243139/129192051-c8424936-26d8-4df3-ab40-17f4392f73d0.jpg)
+
+<p>http://Web1 or Web2-UAT-Server-Public-IP-or-Public-DNS-Name/index.php</p>
+
+![5 c](https://user-images.githubusercontent.com/10243139/129192065-5320d52b-7dfa-4729-9355-727e919f999a.jpg)
+
+<h3>Congratulations!</h3>
+
+<p>You have learned how to deploy and configure UAT Web Servers using Ansible imports and roles!</p>
+
+![project12_architecture](https://user-images.githubusercontent.com/10243139/129192557-29ec59c2-36f6-48a7-88d3-82ae1b12ea9b.png)
 
